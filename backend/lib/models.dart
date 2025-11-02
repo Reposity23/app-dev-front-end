@@ -19,6 +19,15 @@ class User {
         'id': id,
         'username': username,
         'email': email,
+        'password_hash': passwordHash,
+        'department': department,
+        'created_at': createdAt.toIso8601String(),
+      };
+
+  Map<String, dynamic> toSafeJson() => {
+        'id': id,
+        'username': username,
+        'email': email,
         'department': department,
         'created_at': createdAt.toIso8601String(),
       };
@@ -27,8 +36,8 @@ class User {
         id: json['id'],
         username: json['username'],
         email: json['email'],
-        passwordHash: json['password_hash'],
-        department: json['department'],
+        passwordHash: json['password_hash'] ?? '',
+        department: json['department'] ?? 'General',
         createdAt: DateTime.parse(json['created_at']),
       );
 }

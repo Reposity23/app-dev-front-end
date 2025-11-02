@@ -167,7 +167,7 @@ Future<Response> _loginHandler(Request request) async {
     return Response.unauthorized(jsonEncode({'error': 'Invalid credentials'}));
   }
   final token = AuthService.generateToken(user.id, user.username, user.department);
-  return Response.ok(jsonEncode({'user': user.toJson(), 'token': token}), headers: {'Content-Type': 'application/json'});
+  return Response.ok(jsonEncode({'user': user.toSafeJson(), 'token': token}), headers: {'Content-Type': 'application/json'});
 }
 
 Future<Response> _signupHandler(Request request) async {
@@ -183,7 +183,7 @@ Future<Response> _signupHandler(Request request) async {
   );
   await _db.createUser(user);
   final token = AuthService.generateToken(user.id, user.username, user.department);
-  return Response(201, body: jsonEncode({'user': user.toJson(), 'token': token}), headers: {'Content-Type': 'application/json'});
+  return Response(201, body: jsonEncode({'user': user.toSafeJson(), 'token': token}), headers: {'Content-Type': 'application/json'});
 }
 
 void _broadcastToClients(Map<String, dynamic> data) {
