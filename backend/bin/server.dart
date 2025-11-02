@@ -51,7 +51,7 @@ void main() async {
   final server = await shelf_io.serve(
     const Pipeline().addMiddleware(logRequests()).addHandler(cascade.handler),
     '0.0.0.0', 
-    8080,
+    5000,
   );
 
   print('Server running on http://${server.address.host}:${server.port}');

@@ -1,4 +1,4 @@
-modules = ["cpp-clang14", "web", "swift-5.8", "dart-3.6"]
+modules = ["cpp-clang14", "web", "swift-5.8", "dart-3.8"]
 [agent]
 expertMode = true
 
