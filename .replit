@@ -36,3 +36,7 @@ externalPort = 80
 [[ports]]
 localPort = 35391
 externalPort = 3000
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["dart", "run", "backend/bin/server.dart"]
