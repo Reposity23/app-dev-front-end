@@ -33,6 +33,10 @@ outputType = "webview"
 localPort = 5000
 externalPort = 80
 
+[[ports]]
+localPort = 39813
+externalPort = 3000
+
 [deployment]
 deploymentTarget = "autoscale"
 run = ["dart", "run", "backend/bin/server.dart"]

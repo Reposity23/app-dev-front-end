@@ -469,7 +469,17 @@
         }
 
         function playSoundForOrder(order) {
-            // Sound logic remains the same
+            if (!audioUnlocked) return;
+            let soundFile = '';
+            switch (order.category) {
+                case 'Toy Guns': soundFile = '/sounds/lorem.mp3'; break;
+                case 'Action Figures': soundFile = '/sounds/janna.mp3'; break;
+                case 'Dolls': soundFile = '/sounds/marl.mp3'; break;
+                case 'Puzzles': soundFile = '/sounds/renz.mp3'; break;
+                default: return;
+            }
+            const audio = new Audio(soundFile);
+            audio.play().catch(error => console.error(`Error playing sound:`, error));
         }
 
         function updateOrAddOrder(order) {
