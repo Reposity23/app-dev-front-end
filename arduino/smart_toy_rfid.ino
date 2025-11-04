@@ -3,8 +3,6 @@
 #include <ArduinoJson.h>
 #include <SPI.h>
 #include <MFRC522.h>
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
 #include <WiFiClientSecure.h>
 
 // --- Hardware & Network Configuration ---
@@ -29,11 +27,6 @@ const int BUZZER_PIN = 14;
 
 // --- RFID ---
 MFRC522 rfid(SS_PIN, RST_PIN);
-
-// --- LCD (I2C) ---
-#define SDA_PIN 17
-#define SCL_PIN 5
-LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 // --- Card Mapping ---
 struct PersonMapping {
@@ -62,7 +55,7 @@ void executeLedAction(const char* action, const char* category);
 int getLedPinForCategory(const char* category);
 void blinkLed(int pin, int times, int duration);
 void buzzBuzzer(int duration_ms);
-void resetRFID();
+void resetRFID(); // new
 
 // ====================================================
 // SETUP
@@ -74,12 +67,6 @@ void setup() {
   setupWiFi();
   Serial.println("[SETUP] Ready.");
   indicateSystemReady();
-
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("System Ready");
-  lcd.setCursor(0, 1);
-  lcd.print(WiFi.localIP());
 }
 
 // ====================================================
@@ -95,11 +82,13 @@ void loop() {
     setupWiFi();
   }
 
+  // --- Reinitialize RFID if idle too long ---
   if (millis() - lastScanTime > idleTimeout) {
     resetRFID();
     lastScanTime = millis();
   }
 
+  // --- Card Scan Handling ---
   if (rfid.PICC_IsNewCardPresent() && rfid.PICC_ReadCardSerial()) {
     lastScanTime = millis();
 
@@ -108,17 +97,9 @@ void loop() {
 
     if (personName.length() > 0) {
       buzzBuzzer(50);
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Scanned:");
-      lcd.setCursor(0, 1);
-      lcd.print(personName);
       handleScan(personName);
     } else {
       indicateError();
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Unknown Card");
     }
 
     rfid.PICC_HaltA();
@@ -162,18 +143,9 @@ void handleScan(String personName) {
     StaticJsonDocument<256> responseDoc;
     deserializeJson(responseDoc, responsePayload);
     executeLedAction(responseDoc["action"], responseDoc["led"]);
-
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print(responseDoc["led"].as<const char*>());
-    lcd.setCursor(0, 1);
-    lcd.print(responseDoc["action"].as<const char*>());
   } else {
     Serial.print("[HTTPS] Failed: "); Serial.println(http.errorToString(httpCode));
     indicateError();
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Server Error");
   }
 
   http.end();
@@ -197,15 +169,8 @@ void setupHardware() {
   pinMode(LED_PUZZLES, OUTPUT);
   pinMode(BUZZER_PIN, OUTPUT);
   turnOffAllLEDs();
-
-  // --- RFID ---
   SPI.begin();
   rfid.PCD_Init();
-
-  // --- LCD ---
-  Wire.begin(SDA_PIN, SCL_PIN);
-  lcd.init();
-  lcd.backlight();
 }
 
 void setupWiFi() {
